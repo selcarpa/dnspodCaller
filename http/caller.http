@@ -1,0 +1,16 @@
+###
+POST http://localhost:8080/security/record/addRecord
+Content-Type: application/json
+
+{
+  "key": "9a4dc242-de6a-442b-bfcb-a6380c844882",
+  "content": "ePiihBskw2tW1FFWeoNILkENgMKdxqSonAHNqKzLF6BfaVMD8611ojCMvzFEJpe5jjMZ7Hq77AqFGFnSO+aDIvDUbT05wlGJ5GMtxATIbOMNXot1CAd41uRBFIo55TdmZYOT/LzTVLCO8XTmaC3DV2KFLWMtKhqq+my3cO0K0aqL+zHAPewwqop5mujHdVTkxCAqc+h+CFD90FjI62GXENzDjmhD0FMEzidtkd4n9Erc/qVqoUPbKE0K2x9MS5iDCvgPqCy3LFcsUyALad3Db/ZgquqOcqHgUNHmS5TyB/2Pto56yN2p7u018cxM5FnYKMKhTLTBtOOmEnZfdF38LA=="
+}
+
+###
+POST http://localhost:8080/rsa/encrypt
+Content-Type: application/json
+
+{
+  "protocol": "freedom"
+}

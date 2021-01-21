@@ -1,4 +1,4 @@
-package cn.aethli.dnspod.utilsTest;
+package cn.aethli.dnspod.utils;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -6,7 +6,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import java.io.File;
 import java.io.IOException;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
@@ -20,6 +19,17 @@ public class RSAUtils {
 
   private static final int KEY_SIZE = 2048;
 
+  private static KeyFactory keyFactory = null;
+
+  private static KeyFactory getKeyFactory() throws NoSuchAlgorithmException {
+    if (keyFactory == null) {
+      synchronized (ALGORITHM) {
+        keyFactory = KeyFactory.getInstance(ALGORITHM);
+      }
+    }
+    return keyFactory;
+  }
+
   /**
    * @return a random keyPair by algorithm and key size
    * @throws NoSuchAlgorithmException if algorithm not exist
@@ -31,34 +41,21 @@ public class RSAUtils {
   }
 
   /**
-   * @param key
-   * @param keyFile
-   * @throws IOException
-   */
-  public static void saveKeyForEncodedBase64(Key key, File keyFile) throws IOException {
-    byte[] encBytes = key.getEncoded();
-    String encBase64 = Base64.encodeBase64String(encBytes);
-    IOUtils.writeFile(encBase64, keyFile);
-  }
-
-  /**
    * @param pubKeyBase64
    * @return
-   * @throws IOException
    * @throws NoSuchAlgorithmException
    * @throws InvalidKeySpecException
    */
   public static PublicKey getPublicKey(String pubKeyBase64)
-      throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+      throws NoSuchAlgorithmException, InvalidKeySpecException {
     byte[] encPubKey = Base64.decodeBase64(pubKeyBase64);
 
     X509EncodedKeySpec encPubKeySpec = new X509EncodedKeySpec(encPubKey);
 
-    return KeyFactory.getInstance(ALGORITHM).generatePublic(encPubKeySpec);
+    return getKeyFactory().generatePublic(encPubKeySpec);
   }
 
   /**
-   *
    * @param priKeyBase64
    * @return
    * @throws NoSuchAlgorithmException
@@ -68,7 +65,7 @@ public class RSAUtils {
       throws NoSuchAlgorithmException, InvalidKeySpecException {
     byte[] encPriKey = Base64.decodeBase64(priKeyBase64);
     PKCS8EncodedKeySpec encPriKeySpec = new PKCS8EncodedKeySpec(encPriKey);
-    return KeyFactory.getInstance(ALGORITHM).generatePrivate(encPriKeySpec);
+    return getKeyFactory().generatePrivate(encPriKeySpec);
   }
 
   /**
@@ -106,4 +103,35 @@ public class RSAUtils {
     cipher.init(Cipher.DECRYPT_MODE, priKey);
     return cipher.doFinal(cipherData);
   }
+
+  /*  public static String rsaEncrypt(String input, PublicKey publicKey) {
+    String result = "";
+    try {
+      // 加密
+      Cipher cipher = Cipher.getInstance(ALGORITHM);
+      cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+      byte[] inputArray = input.getBytes();
+      int inputLength = inputArray.length;
+      int MAX_ENCRYPT_BLOCK = 117;
+      int offSet = 0;
+      byte[] resultBytes = {};
+      byte[] cache;
+      while (inputLength - offSet > 0) {
+        if (inputLength - offSet > MAX_ENCRYPT_BLOCK) {
+          cache = cipher.doFinal(inputArray, offSet, MAX_ENCRYPT_BLOCK);
+          offSet += MAX_ENCRYPT_BLOCK;
+        } else {
+          cache = cipher.doFinal(inputArray, offSet, inputLength - offSet);
+          offSet = inputLength;
+        }
+        resultBytes = Arrays.copyOf(resultBytes, resultBytes.length + cache.length);
+        System.arraycopy(cache, 0, resultBytes, resultBytes.length - cache.length, cache.length);
+      }
+      result = Base64.encodeToString(resultBytes);
+    } catch (Exception e) {
+      System.out.println("rsaEncrypt error:" + e.getMessage());
+    }
+    System.out.println("加密的结果：" + result);
+    return result;
+  }*/
 }
