@@ -1,10 +1,10 @@
 ###
-POST http://192.168.111.64:8080/security/record/addRecord
+POST http://localhost:8080/security/record/addRecord
 Content-Type: application/json
 
 {
-  "key": "63023941-9cc5-4da4-80ae-4190584fcdd6",
-  "content": "ZmQkvLVroM/nsjlY2sH2psanw/U5RRcFYnopQoeeK3T51hPNyFahZCpc7lHTmVm8o/cMuNSsPO412WBkyHj+PvyxbN/pK/DjdTg4z7IXtMNtTkJYZ14KuQwUMZ8kCy31YiQ0+5MlwIWC0HpSQFNwyUbiyAHsxV6pquBN07Surnnpk1jL9GLYEB4yMp626o8tZ3WqECAyRo3nX7Vg41flwzhSJXST4d9dkHFIRNZrxfXrUwKD/tDBJoADGACSxZEWV3I7PA6O0S0BOuK4X+E60nhV1TvIheFDBX7gFoyV3H8gGoIn3jT2BorTZTTBH2FnA51/bGpJ/QvKWjoj6TTCNDqSlFqwoSYUzZzXaXYRNXxMa3ROeBgyd4ZrntUShjbY5Fi7HyAdkGeHsMunz7hnHwud3HPRf1zduTlX20R9BFnTl6F1xns+xpq+6x/+FeIzE1IfYiExbQ18VTC3KyOlJmuuq+g0o0neZ1yQpJsbMdcFDYOI4JuG9CFCMDOzOyE6giVfxAbtBGXQ74VsPgjxzsFuZcxOxyo0zOQA6ztZZ8npHQbMPjfVbIu+Az0wubOaKyf+2o9iDZj9dGolP1TNK4VKiD5AyY0rv2pdsOQ8ZGxQK2za+GnE8xOmUwlLBVkd02ETV066cj2ZhYnndV4lX572PIzk7wBhjFdhZcc99dw="
+  "key": "9a4dc242-de6a-442b-bfcb-a6380c844882",
+  "content": "J0ulDHprT7S9nx0bedUab6jpRuSunHY/az8Vu+4ETmagpw2lOw07WqQ6UwC7v5LZs27S6zhPWqCO+mVSwKKm6FXSXIOETWUc9yPRy3d3T1yMXhsOngYWtup9SKTw+o6k1T7uDDffi3N5EH1mJvQFmJnadTLmxUv5fPAQr9ig/ZL1rFHbdy5PPNRyVoqIbW4aom6P2VyVaVCy0oXSmlDbQwx5K91fg3WbvHVTTRvr1lJRbATn1CINb2ZQz/BWrmZEZ/3WccbExI4+iQukxk9nb/Wn/vDLwZIQbgByG3A7i/LOS4iJ24kqRNFPpqEMdumM9+eS3z5zFP7MEnhT+XJBNhJPyehtHRzArS7N/80FmuxmYLcaZZDwVZ0GR92ujq5kCOyMH58/utNtsprjssxIO99V7+0i5+EkLDLvBzGl6xj8BdTq7cSwfzddDC4i4/SDiGxMdyhz5QhQCRqOlXTI0DCUJOoO0Aa7/sItjuHyU2bFQ8mS3XfaimfeCiGqH/Eq2n2CV2MgTp/uHPMbWP8vJ+9qxPSSba6AfOE4w4h3tiYxqyrqJ8kfpn+4BiDBnCnMSu2SkPWRwnehcN2V1/lIKX6O8FjJM1LTcL15OqQxtebYT6XJ8emaLUV4CCB+qOESQjUvvd8YdNykn4AepAuHdh3XR9BPKNzNBcht6zEKLNY="
 }
 
 ###
@@ -12,47 +12,13 @@ POST http://localhost:8080/rsa/encrypt
 Content-Type: application/json
 
 {
-  "inbounds": [
-    {
-      "port": 35647,
-      "protocol": "vmess",
-      "settings": {
-        "clients": [
-          {
-            "id": "bf0cc246-f36c-4a80-bd08-26905a9c1e0b",
-            "alterId": 64
-          }
-        ]
-      },
-      "streamSettings": {
-        "network": "ws",
-        "wsSettings": {
-          "path": "/straw"
-        }
-      }
-    }
-  ],
-  "outbounds": [
-    {
-      "protocol": "freedom",
-      "settings": {}
-    },
-    {
-      "protocol": "blackhole",
-      "settings": {},
-      "tag": "block"
-    }
-  ],
-  "routing": {
-    "domainStrategy": "AsIs",
-    "rules": [
-      {
-        "type": "field",
-        "outboundTag": "block",
-        "protocol": [
-          "bittorrent"
-        ]
-      }
-    ]
-  }
+  "domain": "{{domain}}",
+  "subDomain": "{{subDomain}}",
+  "recordType": "A",
+  "recordLine": "默认",
+  "value": "{{value}}",
+  "SignatureMethod": "HmacSHA1",
+  "Action": "RecordCreate",
+  "secretId": "{{secretId}}",
+  "secretKey": "{{secretKey}}"
 }
