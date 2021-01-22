@@ -1,6 +1,7 @@
 package cn.aethli.dnspod.model;
 
 import cn.aethli.dnspod.config.KeyManager;
+import cn.aethli.dnspod.exception.DecryptException;
 import cn.aethli.dnspod.utils.RSAUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,8 @@ public class ModifyAbleHttpServletRequestWrapper extends HttpServletRequestWrapp
   private final ObjectMapper objectMapper = new ObjectMapper();
   private String body;
 
-  public ModifyAbleHttpServletRequestWrapper(HttpServletRequest request) {
+  public ModifyAbleHttpServletRequestWrapper(HttpServletRequest request)
+      throws DecryptException, IOException, BadPaddingException, IllegalBlockSizeException {
     super(request);
     StringBuilder stringBuilder = new StringBuilder();
     try (InputStream inputStream = request.getInputStream()) {
@@ -38,29 +40,25 @@ public class ModifyAbleHttpServletRequestWrapper extends HttpServletRequestWrapp
     } catch (IOException e) {
       log.error(e.getMessage(), e);
     }
-    try {
-      EncryptedBody encryptedBody =
-          objectMapper.readValue(stringBuilder.toString(), EncryptedBody.class);
-      if (StringUtils.isNoneEmpty(encryptedBody.getContent())) {
-        String encryptedBodyContent = encryptedBody.getContent();
-        final Decryptor decryptor = KeyManager.getDecryptor(encryptedBody.getKey());
+    EncryptedBody encryptedBody =
+        objectMapper.readValue(stringBuilder.toString(), EncryptedBody.class);
+    if (StringUtils.isNoneEmpty(encryptedBody.getContent())) {
+      String encryptedBodyContent = encryptedBody.getContent();
+      final Decryptor decryptor = KeyManager.getDecryptor(encryptedBody.getKey());
 
-        if (decryptor != null) {
-          byte[] decrypt =
-              RSAUtils.segmentCrypt(
-                  Base64.decodeBase64(encryptedBodyContent),
-                  decryptor.getCipher(),
-                  RSAUtils.Mode.DECRYPT);
-          String body = new String(decrypt);
-          this.setBody(body);
-          return;
-        }
+      if (decryptor == null) {
+        throw new DecryptException("found no match private Key");
       }
-    } catch (BadPaddingException | IllegalBlockSizeException | IOException e) {
-      log.error(e.getMessage(), e);
+      byte[] decrypt =
+          RSAUtils.segmentCrypt(
+              Base64.decodeBase64(encryptedBodyContent),
+              decryptor.getCipher(),
+              RSAUtils.Mode.DECRYPT);
+      String body = new String(decrypt);
+      this.setBody(body);
+    } else {
+      throw new DecryptException("empty content not allowed");
     }
-
-    this.setBody(stringBuilder.toString());
   }
 
   @Override

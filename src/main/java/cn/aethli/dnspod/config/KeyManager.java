@@ -59,9 +59,10 @@ public class KeyManager {
         Cipher cipher = Cipher.getInstance(RSAUtils.ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         final Decryptor decryptor = new Decryptor(privateKey, cipher);
-        PRIVATE_KEY_MAP.put(
-            keyFileName.replace(fileNameSuffix, "").replace(privateKeyFileNamePrefix, ""),
-            decryptor);
+        final String keyKey =
+            keyFileName.replace(fileNameSuffix, "").replace(privateKeyFileNamePrefix, "");
+        PRIVATE_KEY_MAP.put(keyKey, decryptor);
+        log.info("load private key {}", keyKey);
       } catch (NoSuchAlgorithmException
           | IOException
           | InvalidKeySpecException

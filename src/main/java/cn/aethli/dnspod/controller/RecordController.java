@@ -1,5 +1,6 @@
 package cn.aethli.dnspod.controller;
 
+import cn.aethli.dnspod.common.enums.ResponseStatus;
 import cn.aethli.dnspod.model.ResponseModel;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,6 @@ public class RecordController {
 
   @PostMapping("addRecord")
   public ResponseModel addRecord(@RequestBody Object object) {
-    return null;
+    return new ResponseModel(ResponseStatus.SUCCESS,object);
   }
 }

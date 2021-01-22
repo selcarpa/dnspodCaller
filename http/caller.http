@@ -1,5 +1,5 @@
 ###
-POST http://localhost:8080/security/record/addRecord
+POST http://192.168.111.64:8080/security/record/addRecord
 Content-Type: application/json
 
 {

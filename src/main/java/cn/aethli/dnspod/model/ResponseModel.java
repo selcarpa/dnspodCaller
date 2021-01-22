@@ -1,17 +1,19 @@
 package cn.aethli.dnspod.model;
 
 import cn.aethli.dnspod.common.enums.ResponseStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 public class ResponseModel {
 
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
   private LocalDateTime date = LocalDateTime.now();
+
   private ResponseStatus status;
   private String msg;
   private Object data;
