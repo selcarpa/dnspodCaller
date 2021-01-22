@@ -35,4 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
 /privateKey/
+/src/main/resources/key.properties
