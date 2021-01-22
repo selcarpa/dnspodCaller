@@ -5,7 +5,7 @@ import org.apache.commons.codec.binary.Base64;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
@@ -15,9 +15,9 @@ import java.security.spec.X509EncodedKeySpec;
 /** @author aethli */
 public class RSAUtils {
 
-  private static final String ALGORITHM = "RSA";
+  public static final String ALGORITHM = "RSA";
 
-  private static final int KEY_SIZE = 2048;
+  public static final int KEY_SIZE = 2048;
 
   private static KeyFactory keyFactory = null;
 
@@ -70,68 +70,51 @@ public class RSAUtils {
 
   /**
    * @param plainData
-   * @param pubKey
+   * @param cipher
    * @return
-   * @throws NoSuchPaddingException
-   * @throws NoSuchAlgorithmException
-   * @throws InvalidKeyException
    * @throws BadPaddingException
    * @throws IllegalBlockSizeException
    */
-  public static byte[] encrypt(byte[] plainData, PublicKey pubKey)
-      throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException,
-          BadPaddingException, IllegalBlockSizeException {
-    Cipher cipher = Cipher.getInstance(ALGORITHM);
-    cipher.init(Cipher.ENCRYPT_MODE, pubKey);
-    return cipher.doFinal(plainData);
+  public static byte[] crypt(byte[] plainData, Cipher cipher, int inputOffset, int inputLen)
+      throws BadPaddingException, IllegalBlockSizeException {
+    return cipher.doFinal(plainData, inputOffset, inputLen);
   }
 
   /**
-   * @param cipherData
-   * @param priKey
+   * @param plainData
+   * @param cipher
+   * @param mode
    * @return
-   * @throws NoSuchPaddingException
-   * @throws NoSuchAlgorithmException
-   * @throws InvalidKeyException
    * @throws BadPaddingException
    * @throws IllegalBlockSizeException
    */
-  public static byte[] decrypt(byte[] cipherData, PrivateKey priKey)
-      throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException,
-          BadPaddingException, IllegalBlockSizeException {
-    Cipher cipher = Cipher.getInstance(ALGORITHM);
-    cipher.init(Cipher.DECRYPT_MODE, priKey);
-    return cipher.doFinal(cipherData);
+  public static byte[] segmentCrypt(byte[] plainData, Cipher cipher, Mode mode)
+      throws BadPaddingException, IllegalBlockSizeException, IOException {
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    int inputLength = plainData.length;
+    int MAX_ENCRYPT_BLOCK;
+    if (mode.equals(Mode.ENCRYPT)) {
+      MAX_ENCRYPT_BLOCK = KEY_SIZE / 8 - 11;
+    } else {
+      MAX_ENCRYPT_BLOCK = KEY_SIZE / 8;
+    }
+    int offset = 0;
+    byte[] cache;
+    while (inputLength - offset > 0) {
+      if (inputLength - offset > MAX_ENCRYPT_BLOCK) {
+        cache = crypt(plainData, cipher, offset, MAX_ENCRYPT_BLOCK);
+        offset += MAX_ENCRYPT_BLOCK;
+      } else {
+        cache = crypt(plainData, cipher, offset, inputLength - offset);
+        offset = inputLength;
+      }
+      byteArrayOutputStream.write(cache);
+    }
+    return byteArrayOutputStream.toByteArray();
   }
 
-  /*  public static String rsaEncrypt(String input, PublicKey publicKey) {
-    String result = "";
-    try {
-      // 加密
-      Cipher cipher = Cipher.getInstance(ALGORITHM);
-      cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-      byte[] inputArray = input.getBytes();
-      int inputLength = inputArray.length;
-      int MAX_ENCRYPT_BLOCK = 117;
-      int offSet = 0;
-      byte[] resultBytes = {};
-      byte[] cache;
-      while (inputLength - offSet > 0) {
-        if (inputLength - offSet > MAX_ENCRYPT_BLOCK) {
-          cache = cipher.doFinal(inputArray, offSet, MAX_ENCRYPT_BLOCK);
-          offSet += MAX_ENCRYPT_BLOCK;
-        } else {
-          cache = cipher.doFinal(inputArray, offSet, inputLength - offSet);
-          offSet = inputLength;
-        }
-        resultBytes = Arrays.copyOf(resultBytes, resultBytes.length + cache.length);
-        System.arraycopy(cache, 0, resultBytes, resultBytes.length - cache.length, cache.length);
-      }
-      result = Base64.encodeToString(resultBytes);
-    } catch (Exception e) {
-      System.out.println("rsaEncrypt error:" + e.getMessage());
-    }
-    System.out.println("加密的结果：" + result);
-    return result;
-  }*/
+  public enum Mode {
+    ENCRYPT,
+    DECRYPT
+  }
 }

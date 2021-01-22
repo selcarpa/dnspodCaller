@@ -2,7 +2,6 @@ package cn.aethli.dnspod.model;
 
 import cn.aethli.dnspod.config.KeyManager;
 import cn.aethli.dnspod.utils.RSAUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
@@ -10,15 +9,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.*;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 
 @Slf4j
 public class ModifyAbleHttpServletRequestWrapper extends HttpServletRequestWrapper {
@@ -48,21 +43,20 @@ public class ModifyAbleHttpServletRequestWrapper extends HttpServletRequestWrapp
           objectMapper.readValue(stringBuilder.toString(), EncryptedBody.class);
       if (StringUtils.isNoneEmpty(encryptedBody.getContent())) {
         String encryptedBodyContent = encryptedBody.getContent();
-        PrivateKey privateKey = KeyManager.getPublicKey(encryptedBody.getKey());
-        if (privateKey != null) {
-          byte[] decrypt = RSAUtils.decrypt(Base64.decodeBase64(encryptedBodyContent), privateKey);
+        final Decryptor decryptor = KeyManager.getDecryptor(encryptedBody.getKey());
+
+        if (decryptor != null) {
+          byte[] decrypt =
+              RSAUtils.segmentCrypt(
+                  Base64.decodeBase64(encryptedBodyContent),
+                  decryptor.getCipher(),
+                  RSAUtils.Mode.DECRYPT);
           String body = new String(decrypt);
           this.setBody(body);
           return;
         }
       }
-    } catch (JsonProcessingException
-        | NoSuchPaddingException
-        | NoSuchAlgorithmException
-        | InvalidKeyException
-        | BadPaddingException
-        | IllegalBlockSizeException
-         e) {
+    } catch (BadPaddingException | IllegalBlockSizeException | IOException e) {
       log.error(e.getMessage(), e);
     }
 
