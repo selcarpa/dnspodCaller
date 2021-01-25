@@ -2,7 +2,7 @@ package cn.aethli.dnspod.config;
 
 import cn.aethli.dnspod.common.enums.ResponseStatus;
 import cn.aethli.dnspod.exception.DecryptException;
-import cn.aethli.dnspod.model.ModifyAbleHttpServletRequestWrapper;
+import cn.aethli.dnspod.model.DecryptorRequestWrapper;
 import cn.aethli.dnspod.model.ResponseModel;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -54,9 +54,9 @@ public class SecurityFilter implements Filter {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
-    ModifyAbleHttpServletRequestWrapper requestWrapper;
+    DecryptorRequestWrapper requestWrapper;
     try {
-      requestWrapper = new ModifyAbleHttpServletRequestWrapper((HttpServletRequest) request);
+      requestWrapper = new DecryptorRequestWrapper((HttpServletRequest) request);
     } catch (DecryptException | BadPaddingException | IllegalBlockSizeException e) {
 
       String ip;

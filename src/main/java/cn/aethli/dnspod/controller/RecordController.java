@@ -2,8 +2,9 @@ package cn.aethli.dnspod.controller;
 
 import cn.aethli.dnspod.common.enums.ResponseStatus;
 import cn.aethli.dnspod.dto.RecordDto;
-import cn.aethli.dnspod.feign.TencentFeign;
+import cn.aethli.dnspod.model.NoticeRequestBody;
 import cn.aethli.dnspod.model.ResponseModel;
+import cn.aethli.dnspod.service.RecordService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,12 +17,11 @@ import javax.annotation.Resource;
 @RequestMapping("security/record")
 public class RecordController {
 
-  @Resource private TencentFeign tencentFeign;
+  @Resource private RecordService recordService;
 
   @PostMapping("addRecord")
-  public ResponseModel addRecord(@RequestBody RecordDto recordDto) {
-    recordDto.setTimestamp(Math.toIntExact(System.currentTimeMillis() / 1000));
-    tencentFeign.request(recordDto);
+  public ResponseModel addRecord(@RequestBody NoticeRequestBody<RecordDto> noticeRequestBody) {
+    recordService.addRecord(noticeRequestBody);
     return new ResponseModel(ResponseStatus.SUCCESS);
   }
 }

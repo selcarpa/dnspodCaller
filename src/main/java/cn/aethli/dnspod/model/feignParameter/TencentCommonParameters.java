@@ -43,8 +43,10 @@ public abstract class TencentCommonParameters {
   @JsonProperty("Token")
   private String token;
 
-  public String signThis(
-      String secretKey, TencentCommonParameters parameter, String url, String method)
+  @JsonProperty("SecretKey")
+  private String secretKey;
+
+  public static String signThis(TencentCommonParameters parameter, String url, String method)
       throws UnsupportedEncodingException {
     Map<String, String> fields =
         new TreeMap<String, String>() {
@@ -73,12 +75,16 @@ public abstract class TencentCommonParameters {
             fields.keySet().stream()
                 .map(k -> String.format("%s=%s", k, fields.get(k)))
                 .collect(Collectors.joining("&")));
-    if (secretKey != null) {
+    if (parameter.secretKey != null) {
       HmacUtils hmacUtils =
-          new HmacUtils(HmacAlgorithms.HMAC_SHA_1, secretKey.getBytes(StandardCharsets.UTF_8));
+          new HmacUtils(
+              HmacAlgorithms.HMAC_SHA_1, parameter.secretKey.getBytes(StandardCharsets.UTF_8));
       byte[] signBytes = hmacUtils.hmac(signContentBuilder.toString());
       String sign = Base64.encodeBase64String(signBytes);
-      return URLEncoder.encode(sign, "UTF-8");
+      String encode = URLEncoder.encode(sign, "UTF-8");
+      parameter.signature = encode;
+      parameter.secretKey = null;
+      return encode;
     }
     return null;
   }

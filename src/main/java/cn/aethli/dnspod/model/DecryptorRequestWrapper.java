@@ -17,12 +17,12 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.*;
 
 @Slf4j
-public class ModifyAbleHttpServletRequestWrapper extends HttpServletRequestWrapper {
+public class DecryptorRequestWrapper extends HttpServletRequestWrapper {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
   private String body;
 
-  public ModifyAbleHttpServletRequestWrapper(HttpServletRequest request)
+  public DecryptorRequestWrapper(HttpServletRequest request)
       throws DecryptException, IOException, BadPaddingException, IllegalBlockSizeException {
     super(request);
     StringBuilder stringBuilder = new StringBuilder();

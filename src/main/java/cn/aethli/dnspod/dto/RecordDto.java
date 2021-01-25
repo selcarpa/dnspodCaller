@@ -7,6 +7,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RecordDto extends RecordParameters {
-  private String secretId;
-  private String secretKey;
+
 }
