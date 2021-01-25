@@ -38,3 +38,4 @@ out/
 
 /privateKey/
 /http/http-client.env.json
+/src/main/resources/application-*.properties
