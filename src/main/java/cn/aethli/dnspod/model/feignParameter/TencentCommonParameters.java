@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -76,9 +75,7 @@ public abstract class TencentCommonParameters {
                 .map(k -> String.format("%s=%s", k, fields.get(k)))
                 .collect(Collectors.joining("&")));
     if (parameter.secretKey != null) {
-      HmacUtils hmacUtils =
-          new HmacUtils(
-              HmacAlgorithms.HMAC_SHA_1, parameter.secretKey.getBytes(StandardCharsets.UTF_8));
+      HmacUtils hmacUtils = new HmacUtils(HmacAlgorithms.HMAC_SHA_1, parameter.secretKey);
       byte[] signBytes = hmacUtils.hmac(signContentBuilder.toString());
       String sign = Base64.encodeBase64String(signBytes);
       String encode = URLEncoder.encode(sign, "UTF-8");

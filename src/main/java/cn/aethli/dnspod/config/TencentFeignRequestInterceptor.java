@@ -14,7 +14,6 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,15 +36,18 @@ public class TencentFeignRequestInterceptor implements RequestInterceptor {
         StringBuilder signContentBuilder = new StringBuilder();
         signContentBuilder
             .append(template.method())
-            .append(template.feignTarget().url())
+            .append(template.feignTarget().url().replace("https://", ""))
+            .append(template.path())
             .append("?")
             .append(
                 queries.keySet().stream()
-                    .map(k -> String.format("%s=%s", k, queries.get(k).toString()))
+                    .map(
+                        k ->
+                            String.format(
+                                "%s=%s", k, ((Set) (queries.get(k))).iterator().next().toString()))
                     .collect(Collectors.joining("&")));
         if (secretKey != null) {
-          HmacUtils hmacUtils =
-              new HmacUtils(HmacAlgorithms.HMAC_SHA_1, secretKey.getBytes(StandardCharsets.UTF_8));
+          HmacUtils hmacUtils = new HmacUtils(HmacAlgorithms.HMAC_SHA_1, secretKey);
           byte[] signBytes = hmacUtils.hmac(signContentBuilder.toString());
           String sign = Base64.encodeBase64String(signBytes);
           queries.put("Signature", Collections.singleton(URLEncoder.encode(sign, "UTF-8")));
@@ -57,7 +59,7 @@ public class TencentFeignRequestInterceptor implements RequestInterceptor {
     }
   }
 
-  private Map<String, Collection<String>>  buildQuery(JsonNode jsonNode)
+  private Map<String, Collection<String>> buildQuery(JsonNode jsonNode)
       throws UnsupportedEncodingException {
     Map<String, Collection<String>> queries = new TreeMap<>();
     Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.fields();
@@ -68,7 +70,9 @@ public class TencentFeignRequestInterceptor implements RequestInterceptor {
       }
       queries.put(
           entry.getKey(),
-          Collections.singleton(URLEncoder.encode(String.valueOf(entry.getValue().asText()), StandardCharsets.UTF_8.toString())));
+          Collections.singleton(
+              URLEncoder.encode(
+                  String.valueOf(entry.getValue().asText()), StandardCharsets.UTF_8.toString())));
     }
     return queries;
   }

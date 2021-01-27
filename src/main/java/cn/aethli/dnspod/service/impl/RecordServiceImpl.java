@@ -33,7 +33,7 @@ public class RecordServiceImpl implements RecordService {
 //      String sign = TencentCommonParameters
 //              .signThis(
 //                      noticeRequestBody.getData(),
-//                      "cns.api.qcloud.com",
+//                      "cns.api.qcloud.com/v2/index.php",
 //                      "GET");
 //    } catch (UnsupportedEncodingException e) {
 //      e.printStackTrace();
