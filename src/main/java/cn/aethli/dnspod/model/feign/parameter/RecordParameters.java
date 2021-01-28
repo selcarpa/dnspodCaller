@@ -1,4 +1,4 @@
-package cn.aethli.dnspod.model.feignParameter;
+package cn.aethli.dnspod.model.feign.parameter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

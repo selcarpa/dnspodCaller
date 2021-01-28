@@ -1,6 +1,6 @@
 package cn.aethli.dnspod.dto;
 
-import cn.aethli.dnspod.model.feignParameter.RecordParameters;
+import cn.aethli.dnspod.model.feign.parameter.RecordParameters;
 import lombok.Getter;
 import lombok.Setter;
 

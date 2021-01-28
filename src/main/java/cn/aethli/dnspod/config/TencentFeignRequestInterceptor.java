@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +26,7 @@ public class TencentFeignRequestInterceptor implements RequestInterceptor {
     if ("GET".equals(template.method()) && template.body() != null) {
       try {
         JsonNode jsonNode = defaultMapper.readTree(template.body());
-        template.body("");
+        template.body(null, StandardCharsets.UTF_8);
 
         Map<String, Collection<String>> queries = buildQuery(jsonNode);
         Collection<String> secretKeyCollection = queries.get("SecretKey");
@@ -44,10 +43,14 @@ public class TencentFeignRequestInterceptor implements RequestInterceptor {
                     .map(
                         k ->
                             String.format(
-                                "%s=%s", k, ((Set) (queries.get(k))).iterator().next().toString()))
+                                "%s=%s",
+                                k.replace("_", "."),
+                                ((Set) (queries.get(k))).iterator().next().toString()))
                     .collect(Collectors.joining("&")));
+
+        String signatureMethod = queries.get("SignatureMethod").iterator().next();
         if (secretKey != null) {
-          HmacUtils hmacUtils = new HmacUtils(HmacAlgorithms.HMAC_SHA_1, secretKey);
+          HmacUtils hmacUtils = new HmacUtils(signatureMethod, secretKey);
           byte[] signBytes = hmacUtils.hmac(signContentBuilder.toString());
           String sign = Base64.encodeBase64String(signBytes);
           queries.put("Signature", Collections.singleton(URLEncoder.encode(sign, "UTF-8")));
@@ -68,11 +71,7 @@ public class TencentFeignRequestInterceptor implements RequestInterceptor {
       if (entry.getValue() instanceof NullNode) {
         continue;
       }
-      queries.put(
-          entry.getKey(),
-          Collections.singleton(
-              URLEncoder.encode(
-                  String.valueOf(entry.getValue().asText()), StandardCharsets.UTF_8.toString())));
+      queries.put(entry.getKey(), Collections.singleton(String.valueOf(entry.getValue().asText())));
     }
     return queries;
   }
