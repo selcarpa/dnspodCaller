@@ -26,10 +26,11 @@ public class RecordServiceImpl implements RecordService {
 
   @Override
   @Async
-  public void addRecord(NoticeRequestBody<RecordDto> noticeRequestBody) {
+  public void requestAsync(NoticeRequestBody<RecordDto> noticeRequestBody) {
     noticeRequestBody.getData().setTimestamp(Math.toIntExact(System.currentTimeMillis() / 1000));
     try {
       RecordResult request = tencentFeign.request(noticeRequestBody.getData());
+      log.debug(defaultMapper.writeValueAsString(request));
       mailService.sendTextMail(
           noticeRequestBody.getTo(),
           noticeRequestBody.getSubject(),
@@ -38,5 +39,11 @@ public class RecordServiceImpl implements RecordService {
     } catch (FeignException | JsonProcessingException e) {
       log.error(e.getMessage(), e);
     }
+  }
+
+  @Override
+  public Object request(RecordDto recordDto) {
+    recordDto.setTimestamp(Math.toIntExact(System.currentTimeMillis() / 1000));
+    return tencentFeign.request(recordDto);
   }
 }

@@ -19,9 +19,15 @@ public class RecordController {
 
   @Resource private RecordService recordService;
 
-  @PostMapping("addRecord")
-  public ResponseModel addRecord(@RequestBody NoticeRequestBody<RecordDto> noticeRequestBody) {
-    recordService.addRecord(noticeRequestBody);
+  @PostMapping("notice/request")
+  public ResponseModel noticeRequest(@RequestBody NoticeRequestBody<RecordDto> noticeRequestBody) {
+    recordService.requestAsync(noticeRequestBody);
     return new ResponseModel(ResponseStatus.SUCCESS);
+  }
+
+  @PostMapping("request")
+  public ResponseModel request(@RequestBody RecordDto recordDto) {
+    Object result = recordService.request(recordDto);
+    return new ResponseModel(ResponseStatus.SUCCESS,result);
   }
 }

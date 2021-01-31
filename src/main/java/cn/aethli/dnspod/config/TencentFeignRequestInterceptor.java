@@ -3,23 +3,33 @@ package cn.aethli.dnspod.config;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
+import feign.FeignException;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+import feign.Response;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.HmacUtils;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
+import org.springframework.cloud.openfeign.support.SpringDecoder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-public class TencentFeignRequestInterceptor implements RequestInterceptor {
+public class TencentFeignRequestInterceptor extends SpringDecoder implements RequestInterceptor {
   @Resource private ObjectMapper defaultMapper;
+
+  public TencentFeignRequestInterceptor(ObjectFactory<HttpMessageConverters> messageConverters) {
+    super(messageConverters);
+  }
 
   @Override
   public void apply(RequestTemplate template) {
@@ -74,5 +84,20 @@ public class TencentFeignRequestInterceptor implements RequestInterceptor {
       queries.put(entry.getKey(), Collections.singleton(String.valueOf(entry.getValue().asText())));
     }
     return queries;
+  }
+
+  @Override
+  public Object decode(Response response, Type type) throws FeignException, IOException {
+    Map<String, Collection<String>> headers = new HashMap<>(response.headers());
+    headers.forEach(
+        (k, v) -> {
+          if (k.equals("content-type")) {
+            v = new LinkedList<>();
+            v.add("application/json;charset=utf-8");
+            headers.put("content-type", v);
+          }
+        });
+    response = response.toBuilder().headers(headers).build();
+    return super.decode(response, type);
   }
 }

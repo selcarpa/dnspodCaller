@@ -5,5 +5,7 @@ import cn.aethli.dnspod.model.NoticeRequestBody;
 
 /** @author 93162 */
 public interface RecordService {
-  void addRecord(NoticeRequestBody<RecordDto> noticeRequestBody);
+  void requestAsync(NoticeRequestBody<RecordDto> noticeRequestBody);
+
+  Object request(RecordDto recordDto);
 }

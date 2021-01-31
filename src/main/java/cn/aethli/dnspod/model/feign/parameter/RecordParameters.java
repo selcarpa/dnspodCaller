@@ -27,4 +27,10 @@ public class RecordParameters extends TencentCommonParameters {
 
   @JsonProperty("mx")
   private Integer mx;
+
+  @JsonProperty("offset")
+  private Integer offset;
+
+  @JsonProperty("qProjectId")
+  private Integer qProjectId;
 }

@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 @RestControllerAdvice
 @RequestMapping("ip")
 public class IpController {
-  @GetMapping(value = "myIp", consumes = "text/plain")
+  @GetMapping(value = "myIp")
   public String myIp(HttpServletRequest request) {
     String ip;
     ip = request.getHeader("X-Forwarded-For");
