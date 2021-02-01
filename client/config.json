@@ -1,0 +1,12 @@
+{
+  "api":"http://127.0.0.1:17655",
+  "subDomain":"test",
+  "domain": "example.org",
+  "SignatureMethod": "HmacSHA1",
+  "key":"9a4dc242-de6a-442b-bfcb-a6380c844882",
+  "SecretId": "SecretId",
+  "SecretKey": "SecretKey",
+  "to":"selcarpa@gmail.com",
+  "recordType": "A",
+  "recordLine": "默认"
+}
