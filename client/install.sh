@@ -1,0 +1,1 @@
+crontab -l > conf && echo "* */1 * * * client.sh" >> conf && crontab conf && rm -f conf

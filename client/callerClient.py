@@ -6,6 +6,7 @@ import base64
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 import sys
+import time
 
 def rsa_segment_encrypt(pk, plaintext):
     plaintext = plaintext.encode()
@@ -157,17 +158,17 @@ if __name__ == '__main__':
         result=re.search('((?:[0-9]{1,3}\.){3}[0-9]{1,3})', page_text)
         ip=result.group(1)
         if not result:
-            print('cannot find ip')
+            print(time.strftime("%a %b %d %H:%M:%S %Y :", time.localtime())+'cannot find ip')
             sys.exit(1)
-        print('current ip: '+ip)
+        print(time.strftime("%a %b %d %H:%M:%S %Y :", time.localtime())+'current ip: '+ip)
         if checkLastIp(ip):
-            print('ip unchanged')
+            print(time.strftime("%a %b %d %H:%M:%S %Y :", time.localtime())+'ip unchanged')
         status,id=checkRecord(configJson,ip)
         if status == 0:
-            print('record unchanged, dnsed successfully!')
+            print(time.strftime("%a %b %d %H:%M:%S %Y :", time.localtime())+'record unchanged, dnsed successfully!')
         elif status == 1:
-            print('record was old, add record task start...')
+            print(time.strftime("%a %b %d %H:%M:%S %Y :", time.localtime())+'record was old, add record task start...')
             modifyRecord(configJson,ip,id)
         elif status == 2:
-            print('record has not been dnsed, modify record task start...')
+            print(time.strftime("%a %b %d %H:%M:%S %Y :", time.localtime())+'record has not been dnsed, modify record task start...')
             addRecord(configJson,ip)

@@ -42,7 +42,7 @@ public class RecordServiceImpl implements RecordService {
   }
 
   @Override
-  public Object request(RecordDto recordDto) {
+  public RecordResult request(RecordDto recordDto) {
     recordDto.setTimestamp(Math.toIntExact(System.currentTimeMillis() / 1000));
     return tencentFeign.request(recordDto);
   }
